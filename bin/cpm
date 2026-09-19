@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * `cpm` — short alias for the `claude-project` CLI entry point.
+ */
+
+require __DIR__ . '/claude-project';

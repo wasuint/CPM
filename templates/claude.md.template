@@ -1,0 +1,69 @@
+# Claude Project Manager Configuration
+
+## Project Settings
+- **Project Name**: {{PROJECT_NAME}}
+- **Project Type**: {{PROJECT_TYPE}}
+- **Analysis Depth**: full
+- **File Size Limit**: 500 lines (for new files only)
+
+## Development Rules
+- Respect legacy code (no refactoring of existing large files)
+- Enforce 500-line limit only for new Claude-generated files
+- Function-level progress tracking enabled
+- Session continuity for resuming work exactly where left off
+
+## File Exclusions
+The following patterns will be excluded from analysis:
+- vendor/
+- node_modules/
+- .git/
+- .cpm/
+- cache/
+- tmp/
+- temp/
+- build/
+- dist/
+
+## Supported Languages
+- PHP (with AST parsing using PHP-Parser)
+- Python (with regex-based analysis)
+- JavaScript/TypeScript (basic analysis)
+- Extensible architecture for additional languages
+
+## Progress Tracking
+- **Function Level**: Each function tracked individually
+- **Status Transitions**: pending → in_progress → completed → verified
+- **Milestone Notifications**: Configurable percentage thresholds
+- **Session Continuity**: Complete state preservation between sessions
+
+## Telegram Notifications (Optional)
+Configure these settings to receive progress notifications:
+- **Enabled**: {{TELEGRAM_ENABLED}}
+- **Bot Token**: {{TELEGRAM_BOT_TOKEN}}
+- **Chat ID**: {{TELEGRAM_CHAT_ID}}
+
+### Notification Types
+- Project initialization complete
+- Session resumption with context
+- Function completion milestones
+- Error alerts and warnings
+- Daily progress summaries
+- External file change detection
+
+## Architecture Guidelines
+- JSON-based database (no external dependencies)
+- Atomic operations with file locking
+- Comprehensive error handling and recovery
+- Rule flexibility based on file origin tracking
+- Multi-language code analysis support
+- Abstract Syntax Tree parsing where applicable
+
+## Usage Instructions
+1. Run `cpm start` to initialize and begin tracking
+2. Use `cpm status` to check current progress
+3. The system automatically detects external changes
+4. Session context is preserved for seamless Claude resumption
+5. Progress is tracked at function level for precise monitoring
+
+---
+*This configuration enables Claude to maintain perfect continuity across sessions while respecting your existing codebase and development practices.*

@@ -1,0 +1,150 @@
+{
+  "version": "1.0.7",
+  "project_type": "php",
+  "global_rules": {
+    "max_function_length": 50,
+    "max_file_size": 500,
+    "require_documentation": true,
+    "require_type_declarations": true,
+    "require_error_handling": true,
+    "enforce_naming_conventions": true
+  },
+  "analysis": {
+    "max_scan_depth": 2
+  },
+  "wordpress": {
+    "detect_wordpress": true,
+    "exclude_core": true,
+    "exclude_parent_themes": true,
+    "track_child_themes": true,
+    "track_mu_plugins": true,
+    "core_files": ["wp-*.php", "xmlrpc.php", "license.txt", "readme.html"],
+    "core_dirs": ["wp-admin", "wp-includes"],
+    "exclude_dirs": ["uploads", "cache", "languages", "upgrade", "backups", "w3tc-config"]
+  },
+  "php_rules": {
+    "require_strict_types": true,
+    "require_return_types": true,
+    "require_parameter_types": true,
+    "visibility_required": true,
+    "follow_psr4": true,
+    "docblock_style": "phpDocumentor",
+    "exception_handling": "required",
+    "logging_required": true,
+    "naming_convention": {
+      "functions": "camelCase",
+      "variables": "camelCase",
+      "constants": "UPPER_CASE",
+      "classes": "PascalCase"
+    }
+  },
+  "python_rules": {
+    "follow_pep8": true,
+    "require_type_hints": true,
+    "require_docstrings": true,
+    "docstring_style": "google",
+    "exception_handling": "required",
+    "logging_required": true,
+    "naming_convention": {
+      "functions": "snake_case",
+      "variables": "snake_case",
+      "constants": "UPPER_CASE",
+      "classes": "PascalCase"
+    }
+  },
+  "analysis_patterns": {
+    "type_checking": {
+      "check_input_types": true,
+      "check_return_types": true,
+      "check_variable_types": true,
+      "suggest_union_types": true
+    },
+    "documentation": {
+      "require_function_description": true,
+      "require_parameter_description": true,
+      "require_return_description": true,
+      "require_example_usage": false
+    },
+    "code_quality": {
+      "check_complexity": true,
+      "max_cyclomatic_complexity": 10,
+      "check_duplication": true,
+      "check_unused_variables": true,
+      "check_dead_code": true
+    },
+    "error_handling": {
+      "require_try_catch": true,
+      "require_specific_exceptions": true,
+      "require_error_logging": true,
+      "check_exception_chaining": true
+    }
+  },
+  "exclusion_patterns": [
+    "vendor/**/*",
+    "node_modules/**/*",
+    "tests/**/*",
+    ".git/**/*",
+    "venv/**/*",
+    ".venv/**/*",
+    "__pycache__/**/*",
+    "*.pyc",
+    "*.min.js",
+    "*.min.css",
+    "build/**/*",
+    "dist/**/*",
+    ".npm-global/**/*",
+    ".wp-cli/**/*",
+    "lib/**/*",
+    "packages/**/*",
+    ".cache/**/*",
+    ".npm/**/*",
+    ".pyenv/**/*",
+    ".local/**/*",
+    ".config/**/*",
+    ".gemini/**/*",
+    ".claude/**/*",
+    ".claude-project/**/*",
+    ".codex/**/*"
+  ],
+  "inclusion_patterns": [
+    "*.php",
+    "*.py",
+    "*.js",
+    "*.ts",
+    "*.jsx",
+    "*.tsx",
+    "*.sh",
+    "*.md"
+  ],
+  "file_type_handlers": {
+    "php": "ClaudeProjectManager\\Analyzers\\PhpAnalyzer",
+    "py": "ClaudeProjectManager\\Analyzers\\PythonAnalyzer",
+    "js": "ClaudeProjectManager\\Analyzers\\JavaScriptAnalyzer"
+  },
+  "notification_rules": {
+    "progress_milestones": [25, 50, 75, 100],
+    "error_severity_levels": ["critical", "major"],
+    "completion_notifications": true,
+    "session_notifications": true
+  },
+  "task_templates": {
+    "type_checking": {
+      "name": "Complete Type Safety Review",
+      "description": "Ensure all functions have proper type declarations",
+      "rules": ["require_parameter_types", "require_return_types"],
+      "priority": "high"
+    },
+    "documentation": {
+      "name": "Documentation Completeness",
+      "description": "Add missing documentation to all functions",
+      "rules": ["require_documentation", "require_parameter_description"],
+      "priority": "medium"
+    },
+    "error_handling": {
+      "name": "Error Handling Review",
+      "description": "Ensure proper error handling in all functions",
+      "rules": ["require_try_catch", "require_error_logging"],
+      "priority": "high"
+    }
+  }
+}

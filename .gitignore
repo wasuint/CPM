@@ -1,0 +1,81 @@
+# CPM Development & Test Files
+.cpm/
+.claude-project/
+# Exclude backup JSON files specifically
+.cpm/backups/**/*.json
+.claude-project/backups/**/*.json
+.cpm/config.json
+.claude-project/config.json
+.claude/settings.local.json
+*.log
+cpm-debug.log
+*.bak
+*.backup
+*.backup*
+*.old
+*.tmp
+*.temp
+fix_*.php
+
+# Composer Dependencies  
+/vendor/
+
+# Tooling artefacts
+.omc/
+
+# IDE Files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.buildpath
+.settings/
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# PHP Files
+*.php~
+*.swp
+*.swo
+
+# Environment & Config
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+log/
+
+# Cache & Temp
+cache/
+tmp/
+temp/
+.cache/
+
+# PHPUnit
+# /phpunit.xml  # We want to commit the base config
+/.phpunit.result.cache
+
+# Coverage reports
+/coverage/
+/build/
+
+# Testing
+/tests/tmp/
+/tests/cache/
+
+# Lock files that should be committed
+# (keep composer.lock but ignore others)
+package-lock.json
+yarn.lock

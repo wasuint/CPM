@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/wasuint/CPM/discussions
+    about: Ask how to use CPM, or discuss an idea before opening an issue.
+  - name: Documentation
+    url: https://github.com/wasuint/CPM/tree/main/docs
+    about: Installation, usage, configuration, architecture and troubleshooting guides.
+  - name: Security vulnerability
+    url: https://github.com/wasuint/CPM/security/policy
+    about: Report a security problem privately. Do not open a public issue.

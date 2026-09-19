@@ -1,0 +1,399 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Code Generation Database Schema",
+  "description": "Schema for storing code generation data, templates, and patterns",
+  "type": "object",
+  "properties": {
+    "generations": {
+      "type": "array",
+      "description": "History of code generations",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique generation identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["function", "class", "method", "test", "documentation", "interface"],
+            "description": "Type of code generated"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of generated element"
+          },
+          "target": {
+            "type": "string",
+            "description": "Target element for tests/documentation"
+          },
+          "generated_code": {
+            "type": "string",
+            "description": "Generated code content"
+          },
+          "generated_content": {
+            "type": "string",
+            "description": "Generated documentation content"
+          },
+          "template_used": {
+            "type": "string",
+            "description": "Template ID used for generation"
+          },
+          "patterns_applied": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Pattern types applied during generation"
+          },
+          "context": {
+            "type": "object",
+            "description": "Generation context and parameters"
+          },
+          "requirements": {
+            "type": "object",
+            "description": "Generation requirements"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Confidence score for generation quality"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Generation timestamp"
+          }
+        },
+        "required": ["id", "type", "timestamp", "confidence"],
+        "additionalProperties": false
+      }
+    },
+    "templates": {
+      "type": "object",
+      "description": "Custom code generation templates",
+      "patternProperties": {
+        "^(function|class|method|test|documentation|interface)$": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique template identifier"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Template type"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Template name"
+                },
+                "content": {
+                  "type": "string",
+                  "description": "Template content with placeholders"
+                },
+                "metadata": {
+                  "type": "object",
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "description": "Template description"
+                    },
+                    "framework": {
+                      "type": "string",
+                      "description": "Associated framework"
+                    },
+                    "style": {
+                      "type": "string",
+                      "description": "Code or documentation style"
+                    },
+                    "author": {
+                      "type": "string",
+                      "description": "Template author"
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Template version"
+                    }
+                  }
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Template creation timestamp"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Template last update timestamp"
+                },
+                "custom": {
+                  "type": "boolean",
+                  "description": "Whether this is a custom template"
+                }
+              },
+              "required": ["id", "type", "name", "content"],
+              "additionalProperties": false
+            }
+          }
+        }
+      }
+    },
+    "patterns": {
+      "type": "object",
+      "description": "Analyzed codebase patterns",
+      "properties": {
+        "functions": {
+          "type": "object",
+          "properties": {
+            "naming_convention": {
+              "type": "object",
+              "properties": {
+                "convention": {
+                  "type": "string",
+                  "enum": ["camelCase", "snake_case", "PascalCase", "mixed", "unknown"]
+                },
+                "common_prefixes": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^[a-zA-Z_]+$": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "common_suffixes": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^[a-zA-Z_]+$": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "average_length": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "total_functions": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "parameter_patterns": {
+              "type": "object",
+              "properties": {
+                "average_count": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "max_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "type_distribution": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^[a-zA-Z_|\\?\\[\\]]+$": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "most_common_type": {
+                  "type": ["string", "null"]
+                }
+              }
+            },
+            "return_type_patterns": {
+              "type": "object",
+              "properties": {
+                "distribution": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^[a-zA-Z_|\\?\\[\\]]+$": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "most_common": {
+                  "type": ["string", "null"]
+                },
+                "typed_percentage": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            },
+            "analyzed_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "classes": {
+          "type": "object",
+          "properties": {
+            "naming_convention": {
+              "type": "object",
+              "properties": {
+                "convention": {
+                  "type": "string",
+                  "enum": ["PascalCase", "camelCase", "snake_case", "mixed", "unknown"]
+                }
+              }
+            },
+            "structure_patterns": {
+              "type": "object",
+              "properties": {
+                "average_methods": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            },
+            "analyzed_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "methods": {
+          "type": "object",
+          "properties": {
+            "visibility_distribution": {
+              "type": "object",
+              "properties": {
+                "public": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "private": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "protected": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            },
+            "analyzed_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "tests": {
+          "type": "object",
+          "properties": {
+            "test_framework": {
+              "type": "string",
+              "enum": ["PHPUnit", "Pest", "Codeception", "unknown"]
+            },
+            "naming_conventions": {
+              "type": "object",
+              "properties": {
+                "convention": {
+                  "type": "string"
+                }
+              }
+            },
+            "analyzed_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "documentation": {
+          "type": "object",
+          "properties": {
+            "docblock_style": {
+              "type": "object",
+              "properties": {
+                "style": {
+                  "type": "string",
+                  "enum": ["PHPDoc", "JSDoc", "Sphinx", "Google", "unknown"]
+                }
+              }
+            },
+            "analyzed_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "interfaces": {
+          "type": "object",
+          "properties": {
+            "naming_conventions": {
+              "type": "object",
+              "properties": {
+                "suffix": {
+                  "type": "string"
+                }
+              }
+            },
+            "analyzed_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    },
+    "generation_stats": {
+      "type": "object",
+      "description": "Generation statistics and metrics",
+      "properties": {
+        "total_generations": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of generations"
+        },
+        "by_type": {
+          "type": "object",
+          "patternProperties": {
+            "^(function|class|method|test|documentation|interface)$": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "description": "Generation counts by type"
+        },
+        "average_confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Average confidence across all generations"
+        },
+        "recent_activity_7_days": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of generations in last 7 days"
+        },
+        "most_generated_type": {
+          "type": ["string", "null"],
+          "description": "Most frequently generated type"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last statistics update"
+        }
+      }
+    }
+  },
+  "required": ["generations", "templates", "patterns"],
+  "additionalProperties": false
+}

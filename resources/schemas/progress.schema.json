@@ -1,0 +1,19 @@
+{
+    "type": "object",
+    "required": [
+        "by_file",
+        "by_function",
+        "global_stats"
+    ],
+    "properties": {
+        "by_file": {
+            "type": "object"
+        },
+        "by_function": {
+            "type": "object"
+        },
+        "global_stats": {
+            "type": "object"
+        }
+    }
+}

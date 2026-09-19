@@ -1,0 +1,114 @@
+name: Bug report
+description: Report something that does not work as documented
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to file a report.
+
+        Please do not report security vulnerabilities here. Follow the process in
+        [SECURITY.md](../blob/main/SECURITY.md) instead.
+
+        `.cpm/` state files contain file paths and code metadata from your project.
+        Review anything you paste below before submitting.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before reporting
+      options:
+        - label: I searched the existing issues and did not find this problem.
+          required: true
+        - label: I am running a supported version (see SECURITY.md).
+          required: true
+
+  - type: input
+    id: cpm-version
+    attributes:
+      label: CPM version
+      description: Output of `cpm --version`
+      placeholder: Claude Project Manager 1.3.1
+    validations:
+      required: true
+
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      description: First line of `php -v`
+      placeholder: PHP 8.3.6 (cli)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Windows (WSL)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: Installation method
+      options:
+        - Global install from a git clone
+        - composer require --dev
+        - Running from the repository directly
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Describe the problem and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The exact commands you ran, in order.
+      placeholder: |
+        1. cd ~/projects/my-app
+        2. cpm start
+        3. cpm progress mark-complete src/Example.php
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Command output
+      description: The complete output, including any stack trace.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Output of `cpm verify --json` and, if relevant, `cpm diagnostics`.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: Project size, language mix, unusual configuration, workarounds tried.
+    validations:
+      required: false

@@ -1,0 +1,26 @@
+{
+    "type": "object",
+    "required": [
+        "files",
+        "functions",
+        "classes",
+        "stats"
+    ],
+    "properties": {
+        "files": {
+            "oneOf": [
+                { "type": "array" },
+                { "type": "object" }
+            ]
+        },
+        "functions": {
+            "type": "array"
+        },
+        "classes": {
+            "type": "array"
+        },
+        "stats": {
+            "type": "object"
+        }
+    }
+}

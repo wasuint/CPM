@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Dependencies Schema",
+  "description": "Schema for project dependency analysis data",
+  "type": "object",
+  "required": ["generated_at", "files", "dependency_graph"],
+  "properties": {
+    "generated_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when analysis was generated"
+    },
+    "files": {
+      "type": "object",
+      "description": "Dependency information for each file",
+      "patternProperties": {
+        "^.+": {
+          "type": "object",
+          "description": "File dependency information",
+          "properties": {
+            "imports": {
+              "type": "array",
+              "description": "List of imported classes/modules/functions",
+              "items": {
+                "type": "string"
+              }
+            },
+            "exports": {
+              "type": "array",
+              "description": "List of exported items from this file",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["function", "class", "interface", "trait", "method", "variable", "constant"],
+                        "description": "Type of exported item"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "Name of exported item"
+                      },
+                      "visibility": {
+                        "type": "string",
+                        "enum": ["public", "private", "protected", "magic"],
+                        "description": "Visibility of the exported item"
+                      }
+                    },
+                    "required": ["type", "name"]
+                  }
+                ]
+              }
+            },
+            "file_dependencies": {
+              "type": "array",
+              "description": "Direct file dependencies (require/include)",
+              "items": {
+                "type": "string"
+              }
+            },
+            "imported_by": {
+              "type": "array",
+              "description": "Files that import from this file",
+              "items": {
+                "type": "string"
+              }
+            },
+            "language": {
+              "type": "string",
+              "enum": ["php", "python", "javascript", "typescript", "unknown"],
+              "description": "Programming language of the file"
+            },
+            "dependency_depth": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Depth in the dependency chain"
+            }
+          }
+        }
+      }
+    },
+    "dependency_graph": {
+      "type": "object",
+      "description": "Dependency graph analysis and statistics",
+      "properties": {
+        "circular_dependencies": {
+          "type": "array",
+          "description": "Circular dependency chains found",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of files forming a circular dependency"
+          }
+        },
+        "dependency_chains": {
+          "type": "object",
+          "description": "Information about dependency chains",
+          "properties": {
+            "longest_chain": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Depth of the longest dependency chain"
+            },
+            "most_depended_on": {
+              "type": "string",
+              "description": "File with the most dependents"
+            }
+          }
+        },
+        "statistics": {
+          "type": "object",
+          "description": "Overall dependency statistics",
+          "properties": {
+            "total_files": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total number of files analyzed"
+            },
+            "total_dependencies": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total number of dependencies found"
+            },
+            "average_depth": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Average dependency depth"
+            },
+            "isolated_files": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of files with no dependencies"
+            },
+            "circular_dependencies_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of circular dependency chains"
+            }
+          }
+        }
+      }
+    }
+  }
+}

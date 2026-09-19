@@ -1,0 +1,19 @@
+{
+    "type": "object",
+    "required": [
+        "active_tasks",
+        "completed_tasks",
+        "execution_plan"
+    ],
+    "properties": {
+        "active_tasks": {
+            "type": "array"
+        },
+        "completed_tasks": {
+            "type": "array"
+        },
+        "execution_plan": {
+            "type": "object"
+        }
+    }
+}

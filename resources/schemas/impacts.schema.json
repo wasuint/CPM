@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Impact Analysis Schema",
+  "description": "Schema for change impact analysis data",
+  "type": "object",
+  "required": ["generated_at", "cached_analyses", "function_usage_map"],
+  "properties": {
+    "generated_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when analysis was generated"
+    },
+    "cached_analyses": {
+      "type": "object",
+      "description": "Cached impact analyses for files",
+      "patternProperties": {
+        "^.+": {
+          "type": "object",
+          "description": "Impact analysis result for a specific file",
+          "properties": {
+            "target_file": {
+              "type": "string",
+              "description": "File that was analyzed"
+            },
+            "analyzed_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When the analysis was performed"
+            },
+            "file_hash": {
+              "type": "string",
+              "description": "Hash of the file content for cache validation"
+            },
+            "impact_score": {
+              "type": "string",
+              "enum": ["LOW", "MEDIUM", "HIGH", "UNKNOWN"],
+              "description": "Overall impact level"
+            },
+            "directly_affected": {
+              "type": "array",
+              "description": "Files directly affected by changes",
+              "items": {
+                "type": "string"
+              }
+            },
+            "indirectly_affected": {
+              "type": "array",
+              "description": "Files indirectly affected by changes",
+              "items": {
+                "type": "string"
+              }
+            },
+            "exported_functions": {
+              "type": "array",
+              "description": "Functions exported by this file",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Function name"
+                  },
+                  "visibility": {
+                    "type": "string",
+                    "enum": ["public", "private", "protected"],
+                    "description": "Function visibility"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["function", "method"],
+                    "description": "Function type"
+                  },
+                  "usage_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of places where function is used"
+                  }
+                },
+                "required": ["name", "visibility", "type", "usage_count"]
+              }
+            },
+            "external_usage": {
+              "type": "array",
+              "description": "External usage patterns",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "File that uses this"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["test", "controller", "service", "general"],
+                    "description": "Type of usage"
+                  },
+                  "relationship": {
+                    "type": "string",
+                    "enum": ["imports", "extends", "implements"],
+                    "description": "Type of relationship"
+                  }
+                },
+                "required": ["file", "type", "relationship"]
+              }
+            },
+            "recommendations": {
+              "type": "array",
+              "description": "Recommendations for managing the change",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["target_file", "analyzed_at", "impact_score", "directly_affected", "indirectly_affected", "exported_functions", "external_usage", "recommendations"]
+        }
+      }
+    },
+    "function_usage_map": {
+      "type": "object",
+      "description": "Map of function usage across the codebase",
+      "patternProperties": {
+        "^.+": {
+          "type": "object",
+          "description": "Usage information for a specific function",
+          "properties": {
+            "declared_in": {
+              "type": "string",
+              "description": "File where the function is declared"
+            },
+            "used_in": {
+              "type": "array",
+              "description": "Files and locations where function is used",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "File containing the usage"
+                  },
+                  "line": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Line number where function is used"
+                  }
+                },
+                "required": ["file"]
+              }
+            },
+            "usage_patterns": {
+              "type": "object",
+              "description": "Patterns of how the function is used",
+              "properties": {
+                "direct_calls": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Number of direct function calls"
+                },
+                "method_chains": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Number of method chain usages"
+                },
+                "in_tests": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Number of usages in test files"
+                }
+              }
+            }
+          },
+          "required": ["declared_in", "used_in"]
+        }
+      }
+    }
+  }
+}

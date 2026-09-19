@@ -1,0 +1,129 @@
+{
+  "version": "1.0.0",
+  "description": "Development rules for Claude Project Manager",
+  "rules": {
+    "file_size": {
+      "description": "Maximum file size in lines",
+      "max_lines": 500,
+      "applies_to": ["new", "claude_generated"],
+      "excludes": ["legacy"],
+      "severity": "error"
+    },
+    "function_length": {
+      "description": "Maximum function length in lines",
+      "max_lines": 50,
+      "applies_to": ["new", "claude_generated"],
+      "excludes": ["legacy"],
+      "severity": "warning"
+    },
+    "complexity_limit": {
+      "description": "Maximum cyclomatic complexity",
+      "max_complexity": 10,
+      "applies_to": ["all"],
+      "severity": "warning"
+    },
+    "naming_convention": {
+      "description": "Enforce naming conventions",
+      "enabled": true,
+      "patterns": {
+        "functions": "^[a-z][a-zA-Z0-9]*$",
+        "classes": "^[A-Z][a-zA-Z0-9]*$",
+        "constants": "^[A-Z][A-Z0-9_]*$"
+      },
+      "applies_to": ["new", "claude_generated"],
+      "severity": "error"
+    },
+    "documentation_required": {
+      "description": "Require documentation for new functions",
+      "enabled": true,
+      "applies_to": ["new", "claude_generated"],
+      "severity": "warning"
+    },
+    "no_global_variables": {
+      "description": "Prohibit global variables in new code",
+      "enabled": true,
+      "applies_to": ["new", "claude_generated"],
+      "severity": "error"
+    },
+    "error_handling": {
+      "description": "Require proper error handling",
+      "enabled": true,
+      "applies_to": ["new", "claude_generated"],
+      "severity": "warning"
+    }
+  },
+  "file_origin_tracking": {
+    "description": "Track file origins to apply rules appropriately",
+    "enabled": true,
+    "origins": {
+      "legacy": {
+        "description": "Existing files before Claude management",
+        "lenient_rules": true,
+        "enforce_only": ["security", "critical_bugs"]
+      },
+      "new": {
+        "description": "New files created during development",
+        "strict_rules": true,
+        "enforce_all": true
+      },
+      "claude_generated": {
+        "description": "Files created or modified by Claude",
+        "strict_rules": true,
+        "enforce_all": true,
+        "additional_checks": ["consistency", "best_practices"]
+      },
+      "external": {
+        "description": "Third-party or vendor files",
+        "skip_analysis": true,
+        "track_changes_only": true
+      }
+    }
+  },
+  "analysis_settings": {
+    "include_patterns": [
+      "*.php",
+      "*.py",
+      "*.js",
+      "*.ts",
+      "*.jsx",
+      "*.tsx"
+    ],
+    "exclude_patterns": [
+      "vendor/*",
+      "node_modules/*",
+      ".git/*",
+      "venv/*",
+      ".venv/*",
+      "__pycache__/*",
+      "*.pyc",
+      "cache/*",
+      "tmp/*",
+      "temp/*",
+      "build/*",
+      "dist/*"
+    ],
+    "skip_large_files": true,
+    "large_file_threshold": 1000,
+    "deep_analysis_extensions": [".php", ".py"]
+  },
+  "progress_tracking": {
+    "function_level": true,
+    "status_transitions": [
+      "pending",
+      "in_progress", 
+      "completed",
+      "verified",
+      "has_issues"
+    ],
+    "milestone_thresholds": [25, 50, 75, 90, 100],
+    "notification_enabled": true
+  },
+  "session_management": {
+    "continuity_enabled": true,
+    "change_detection": true,
+    "context_preservation": true,
+    "incremental_reanalysis": true,
+    "session_timeout": 7200,
+    "max_history": 50
+  }
+}

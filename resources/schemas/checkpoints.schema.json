@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Checkpoints Schema",
+  "description": "Schema for checkpoint data storage",
+  "type": "object",
+  "properties": {
+    "checkpoints": {
+      "type": "array",
+      "description": "Array of checkpoint entries",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique checkpoint identifier"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Checkpoint creation timestamp"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable checkpoint description"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "auto",
+              "milestone"
+            ],
+            "description": "Type of checkpoint"
+          },
+          "state_snapshot": {
+            "type": "object",
+            "description": "Complete project state at checkpoint time",
+            "properties": {
+              "progress": {
+                "type": "object",
+                "description": "Progress data at checkpoint time"
+              },
+              "inventory": {
+                "type": "object",
+                "description": "Code inventory at checkpoint time"
+              },
+              "project": {
+                "type": "object",
+                "description": "Project metadata at checkpoint time"
+              }
+            }
+          },
+          "session_info": {
+            "type": "object",
+            "description": "Session information at checkpoint time",
+            "properties": {
+              "session_id": {
+                "type": "string"
+              },
+              "duration_minutes": {
+                "type": "number"
+              },
+              "activities_count": {
+                "type": "integer"
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata",
+            "properties": {
+              "cpm_version": {
+                "type": "string"
+              },
+              "system_info": {
+                "type": "object"
+              },
+              "agent": {
+                "type": "string",
+                "description": "Agent that created the checkpoint"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "created_at",
+          "description",
+          "type",
+          "state_snapshot"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "checkpoints"
+  ],
+  "additionalProperties": false
+}

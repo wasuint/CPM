@@ -1,0 +1,45 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Claude Project Manager CLI Entry Point
+ * Main executable for Claude Project Manager
+ */
+
+// Try to find the autoloader - handles both composer and direct installation
+$autoloadPaths = [
+    // When installed as a composer dependency
+    __DIR__ . '/../../../../vendor/autoload.php',
+    __DIR__ . '/../../../vendor/autoload.php', 
+    __DIR__ . '/../../vendor/autoload.php',
+    // When used directly from the repository
+    __DIR__ . '/../vendor/autoload.php',
+];
+
+foreach ($autoloadPaths as $autoload) {
+    if (file_exists($autoload)) {
+        require_once $autoload;
+        break;
+    }
+}
+
+// If no autoloader was found, show helpful error
+if (!class_exists('ClaudeProjectManager\\Console\\Application')) {
+    fwrite(STDERR, "Error: Could not find autoloader. Please run 'composer install' in your project.\n");
+    exit(1);
+}
+
+use ClaudeProjectManager\Console\Application;
+
+try {
+    $application = new Application();
+    $application->run();
+} catch (\Exception $e) {
+    fprintf(STDERR, "Fatal error: %s\n", $e->getMessage());
+    if (getenv('CLAUDE_DEBUG') === '1') {
+        fprintf(STDERR, "Stack trace:\n%s\n", $e->getTraceAsString());
+    }
+    exit(1);
+}

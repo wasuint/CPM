@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Refactoring History Schema",
+  "description": "Schema for tracking cross-file refactoring operations",
+  "type": "object",
+  "required": ["generated_at", "function_movements", "file_splits", "merge_operations"],
+  "properties": {
+    "generated_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when history was last updated"
+    },
+    "function_movements": {
+      "type": "object",
+      "description": "Individual function movements between files",
+      "patternProperties": {
+        "^.+": {
+          "type": "object",
+          "description": "Function movement record",
+          "properties": {
+            "signature": {
+              "type": "string",
+              "description": "SHA256 hash signature of the function"
+            },
+            "function_name": {
+              "type": "string",
+              "description": "Name of the moved function"
+            },
+            "moved_from": {
+              "type": "string",
+              "description": "Original file path"
+            },
+            "moved_to": {
+              "type": "string", 
+              "description": "Destination file path"
+            },
+            "detected_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When the movement was detected"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence score for the movement detection"
+            }
+          },
+          "required": ["signature", "function_name", "moved_from", "moved_to", "detected_at", "confidence"]
+        }
+      }
+    },
+    "file_splits": {
+      "type": "array",
+      "description": "File split operations where one file becomes multiple files",
+      "items": {
+        "type": "object",
+        "properties": {
+          "original_file": {
+            "type": "string",
+            "description": "File that was split"
+          },
+          "split_into": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Files created from the split"
+          },
+          "functions_moved": {
+            "type": "array",
+            "description": "Functions and their destinations",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Function name"
+                },
+                "moved_to": {
+                  "type": "string",
+                  "description": "Destination file"
+                }
+              },
+              "required": ["name", "moved_to"]
+            }
+          },
+          "detected_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the split was detected"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Confidence score for the split detection"
+          }
+        },
+        "required": ["original_file", "split_into", "functions_moved", "detected_at", "confidence"]
+      }
+    },
+    "merge_operations": {
+      "type": "array",
+      "description": "File merge operations where multiple files become one file",
+      "items": {
+        "type": "object", 
+        "properties": {
+          "merged_files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Files that were merged"
+          },
+          "merged_into": {
+            "type": "string",
+            "description": "Destination file for the merge"
+          },
+          "functions_consolidated": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of functions consolidated"
+          },
+          "detected_at": {
+            "type": "string",
+            "format": "date-time", 
+            "description": "When the merge was detected"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Confidence score for the merge detection"
+          }
+        },
+        "required": ["merged_files", "merged_into", "functions_consolidated", "detected_at", "confidence"]
+      }
+    }
+  }
+}

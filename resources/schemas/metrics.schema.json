@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Code Metrics Schema",
+  "description": "Schema for code quality metrics tracking over time",
+  "type": "object",
+  "required": ["generated_at", "files", "project_trends"],
+  "properties": {
+    "generated_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when metrics were last updated"
+    },
+    "files": {
+      "type": "object",
+      "description": "Metrics for individual files",
+      "patternProperties": {
+        "^.+": {
+          "type": "object",
+          "description": "File metrics with history",
+          "properties": {
+            "current": {
+              "type": "object",
+              "description": "Current metrics snapshot",
+              "properties": {
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When metrics were collected"
+                },
+                "file_hash": {
+                  "type": "string",
+                  "description": "Hash of file content for change detection"
+                },
+                "metrics": {
+                  "type": "object",
+                  "description": "File-level metrics",
+                  "properties": {
+                    "cyclomatic_complexity": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Total cyclomatic complexity"
+                    },
+                    "function_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Number of functions in file"
+                    },
+                    "average_function_length": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Average lines per function"
+                    },
+                    "maintainability_index": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100,
+                      "description": "Microsoft Maintainability Index"
+                    },
+                    "technical_debt_minutes": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Estimated technical debt in minutes"
+                    },
+                    "code_smells": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Number of detected code smells"
+                    }
+                  }
+                },
+                "function_metrics": {
+                  "type": "object",
+                  "description": "Individual function metrics",
+                  "patternProperties": {
+                    "^.+": {
+                      "type": "object",
+                      "properties": {
+                        "complexity": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Cyclomatic complexity"
+                        },
+                        "length": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Lines of code"
+                        },
+                        "maintainability": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 100,
+                          "description": "Function maintainability index"
+                        },
+                        "parameters": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Number of parameters"
+                        },
+                        "technical_debt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Technical debt minutes"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "required": ["timestamp", "file_hash", "metrics"]
+            },
+            "history": {
+              "type": "array",
+              "description": "Historical metrics snapshots",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When metrics were collected"
+                  },
+                  "file_hash": {
+                    "type": "string",
+                    "description": "Hash of file content"
+                  },
+                  "metrics": {
+                    "type": "object",
+                    "description": "Historical metrics snapshot"
+                  }
+                },
+                "required": ["timestamp", "file_hash", "metrics"]
+              }
+            }
+          },
+          "required": ["current"]
+        }
+      }
+    },
+    "project_trends": {
+      "type": "object",
+      "description": "Project-wide metrics trends over time",
+      "properties": {
+        "overall_complexity": {
+          "type": "object",
+          "description": "Total project complexity by date",
+          "patternProperties": {
+            "^\\d{4}-\\d{2}-\\d{2}$": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "maintainability_index": {
+          "type": "object",
+          "description": "Average maintainability index by date",
+          "patternProperties": {
+            "^\\d{4}-\\d{2}-\\d{2}$": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "technical_debt_hours": {
+          "type": "object",
+          "description": "Total technical debt hours by date",
+          "patternProperties": {
+            "^\\d{4}-\\d{2}-\\d{2}$": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    }
+  }
+}

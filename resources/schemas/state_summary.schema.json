@@ -1,0 +1,190 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "State Summary Schema",
+  "description": "Schema for the lightweight project state summary",
+  "type": "object",
+  "required": ["generated_at", "project_overview", "completion_summary"],
+  "properties": {
+    "generated_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when summary was generated"
+    },
+    "project_overview": {
+      "type": "object",
+      "description": "Basic project information and statistics",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Project name"
+        },
+        "framework": {
+          "type": "string",
+          "description": "Detected framework (Laravel, Symfony, etc.)"
+        },
+        "language": {
+          "type": "string",
+          "description": "Primary programming language"
+        },
+        "total_files": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of analyzed files"
+        },
+        "total_functions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of functions found"
+        },
+        "analyzed_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "When the project was last analyzed"
+        }
+      }
+    },
+    "completion_summary": {
+      "type": "object",
+      "description": "Progress completion statistics",
+      "properties": {
+        "total_functions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of functions to process"
+        },
+        "completed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of completed functions"
+        },
+        "in_progress": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of functions currently in progress"
+        },
+        "pending": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of pending functions"
+        },
+        "completion_percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Overall completion percentage"
+        }
+      }
+    },
+    "recent_activity": {
+      "type": "object",
+      "description": "Recent project activity information",
+      "properties": {
+        "last_session": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "When the last session started"
+        },
+        "files_modified_today": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of files modified today"
+        },
+        "functions_completed_today": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of functions completed today"
+        },
+        "recent_changes": {
+          "type": "array",
+          "description": "List of recent changes",
+          "items": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string",
+                "description": "File that was changed"
+              },
+              "function": {
+                "type": "string",
+                "description": "Function that was changed"
+              },
+              "action": {
+                "type": "string",
+                "enum": ["completed", "started", "modified"],
+                "description": "Type of action performed"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the change occurred"
+              }
+            }
+          }
+        }
+      }
+    },
+    "critical_metrics": {
+      "type": "object",
+      "description": "Key quality and progress indicators",
+      "properties": {
+        "high_complexity_functions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of functions with high complexity"
+        },
+        "missing_documentation": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of functions missing documentation"
+        },
+        "type_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Percentage of functions with proper typing"
+        },
+        "critical_issues": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of critical issues found"
+        }
+      }
+    },
+    "file_summary": {
+      "type": "object",
+      "description": "File analysis statistics",
+      "properties": {
+        "by_status": {
+          "type": "object",
+          "properties": {
+            "fully_analyzed": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Files that are fully analyzed"
+            },
+            "partially_analyzed": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Files that are partially analyzed"
+            },
+            "pending_analysis": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Files pending analysis"
+            }
+          }
+        },
+        "by_language": {
+          "type": "object",
+          "description": "File count by programming language",
+          "patternProperties": {
+            "^[a-zA-Z]+$": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    }
+  }
+}

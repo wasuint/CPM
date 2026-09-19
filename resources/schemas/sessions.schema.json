@@ -1,0 +1,15 @@
+{
+    "type": "object",
+    "required": [
+        "current_session",
+        "session_history"
+    ],
+    "properties": {
+        "current_session": {
+            "type": "object"
+        },
+        "session_history": {
+            "type": "array"
+        }
+    }
+}

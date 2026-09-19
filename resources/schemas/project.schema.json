@@ -1,0 +1,23 @@
+{
+    "type": "object",
+    "required": [
+        "project_id",
+        "name", 
+        "type",
+        "created_at"
+    ],
+    "properties": {
+        "project_id": {"type": "string"},
+        "name": {"type": "string"},
+        "type": {"type": "string", "enum": ["php", "python", "mixed"]},
+        "created_at": {"type": "string"},
+        "updated_at": {"type": "string"},
+        "root_path": {"type": "string"},
+        "config": {"type": ["object", "array"]},
+        "initialized": {"type": "boolean"},
+        "initialized_at": {"type": ["string", "null"]},
+        "last_analysis": {"type": ["string", "null"]},
+        "analysis_stats": {"type": ["object", "array"]}
+    },
+    "additionalProperties": true
+}
