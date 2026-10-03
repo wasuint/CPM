@@ -33,7 +33,7 @@ class StatusCommand extends Command
         DatabaseManager $database,
         SessionManager $sessionManager,
         MetricsCalculator $metricsCalculator,
-        AiPriorityScorer $aiPriorityScorer = null
+        ?AiPriorityScorer $aiPriorityScorer = null
     ) {
         parent::__construct();
         $this->database = $database;

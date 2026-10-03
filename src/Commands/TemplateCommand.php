@@ -24,6 +24,9 @@ class TemplateCommand extends Command
     private DatabaseManager $database;
     private SessionManager $sessionManager;
 
+    /** Languages with templates; also the only accepted --language values. */
+    private const SUPPORTED_LANGUAGES = ['php', 'javascript', 'python', 'typescript'];
+
     protected static $defaultName = 'template';
     protected static $defaultDescription = 'Intelligent template system with learning capabilities';
 
@@ -138,6 +141,13 @@ Learning Process:
         $io = $this->createStyleIfNeeded($input, $output);
 
         try {
+            if (!in_array($language, self::SUPPORTED_LANGUAGES, true)) {
+                throw new \InvalidArgumentException(
+                    'Unsupported language: ' . (string) $language
+                    . ' (supported: ' . implode(', ', self::SUPPORTED_LANGUAGES) . ')'
+                );
+            }
+
             $result = match ($action) {
                 'list' => $this->listTemplates($language, $context),
                 'generate' => $this->generateTemplate($templateType, $pattern, $language, $context),
@@ -177,7 +187,7 @@ Learning Process:
             'learned_patterns' => count($learnedPatterns),
             'templates' => $templates,
             'patterns' => $learnedPatterns,
-            'languages_supported' => ['php', 'javascript', 'python', 'typescript'],
+            'languages_supported' => self::SUPPORTED_LANGUAGES,
             'contexts' => ['general', 'api', 'security', 'database', 'frontend', 'testing']
         ];
     }
@@ -277,8 +287,15 @@ Learning Process:
             'templates' => $templates
         ];
 
-        $exportPath = '/tmp/cpm_templates_' . $language . '_' . date('Ymd_His') . '.json';
-        file_put_contents($exportPath, json_encode($exportData));
+        // tempnam() creates a new, unpredictable file (mode 0600) exclusively,
+        // so a pre-planted symlink in the shared temp dir cannot be followed.
+        $exportPath = tempnam(sys_get_temp_dir(), 'cpm_templates_' . $language . '_');
+        if ($exportPath === false || is_link($exportPath)) {
+            throw new \RuntimeException('Could not create a temporary export file');
+        }
+        if (file_put_contents($exportPath, json_encode($exportData)) === false) {
+            throw new \RuntimeException("Could not write export file: {$exportPath}");
+        }
 
         return [
             'export_completed' => true,
@@ -286,7 +303,7 @@ Learning Process:
             'template_count' => count($templates),
             'file_size' => filesize($exportPath) . ' bytes',
             'format' => 'JSON',
-            'import_command' => "cpm template import {$exportPath}"
+            'import_command' => 'cpm template import ' . escapeshellarg($exportPath)
         ];
     }
 

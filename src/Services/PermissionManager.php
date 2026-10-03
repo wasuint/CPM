@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ClaudeProjectManager\Services;
 
 use ClaudeProjectManager\ConfigManager;
+use ClaudeProjectManager\Installer;
 
 /**
  * Manages permissions for CPM files and directories
@@ -113,11 +114,11 @@ class PermissionManager
                 'priority' => 'high',
                 'action' => 'Fix ownership to current user',
                 'commands' => [
-                    "sudo chown -R {$this->currentUser}:{$this->currentUser} {$cpmPath}",
-                    "chmod -R 755 {$cpmPath}",
-                    "chmod 775 {$cpmPath}/logs"
+                    'sudo chown -R ' . $this->ownerArg() . ' ' . escapeshellarg($cpmPath),
+                    'find ' . escapeshellarg($cpmPath) . ' -type d -exec chmod ' . self::dirMode() . ' {} +',
+                    'find ' . escapeshellarg($cpmPath) . ' -type f -exec chmod ' . self::fileMode() . ' {} +'
                 ],
-                'explanation' => 'Changes ownership from root to current user and sets proper permissions'
+                'explanation' => 'Changes ownership from root to current user and restores the installer permissions (no world access)'
             ];
         }
     }
@@ -141,8 +142,8 @@ class PermissionManager
                 'priority' => 'medium',
                 'action' => 'Create CPM directory',
                 'commands' => [
-                    "mkdir -p {$cpmPath}",
-                    "chmod 755 {$cpmPath}"
+                    'mkdir -p ' . escapeshellarg($cpmPath),
+                    'chmod ' . self::dirMode() . ' ' . escapeshellarg($cpmPath)
                 ],
                 'explanation' => 'Creates the main CPM directory with proper permissions'
             ];
@@ -162,8 +163,8 @@ class PermissionManager
                 'priority' => 'high',
                 'action' => 'Fix CPM directory permissions',
                 'commands' => [
-                    "chmod 755 {$cpmPath}",
-                    "chown {$this->currentUser}:{$this->currentUser} {$cpmPath}"
+                    'chmod ' . self::dirMode() . ' ' . escapeshellarg($cpmPath),
+                    'chown ' . $this->ownerArg() . ' ' . escapeshellarg($cpmPath)
                 ],
                 'explanation' => 'Makes CPM directory writable for the current user'
             ];
@@ -189,9 +190,9 @@ class PermissionManager
                 'priority' => 'high',
                 'action' => 'Create logs directory',
                 'commands' => [
-                    "mkdir -p {$logsPath}",
-                    "chmod 775 {$logsPath}",
-                    "chown {$this->currentUser}:{$this->currentUser} {$logsPath}"
+                    'mkdir -p ' . escapeshellarg($logsPath),
+                    'chmod ' . self::dirMode() . ' ' . escapeshellarg($logsPath),
+                    'chown ' . $this->ownerArg() . ' ' . escapeshellarg($logsPath)
                 ],
                 'explanation' => 'Creates logs directory with write permissions for daemon'
             ];
@@ -211,8 +212,8 @@ class PermissionManager
                 'priority' => 'high',
                 'action' => 'Fix logs directory permissions',
                 'commands' => [
-                    "chmod 775 {$logsPath}",
-                    "chown {$this->currentUser}:{$this->currentUser} {$logsPath}"
+                    'chmod ' . self::dirMode() . ' ' . escapeshellarg($logsPath),
+                    'chown ' . $this->ownerArg() . ' ' . escapeshellarg($logsPath)
                 ],
                 'explanation' => 'Ensures daemon can write log and PID files'
             ];
@@ -248,8 +249,8 @@ class PermissionManager
                     'priority' => 'high',
                     'action' => 'Fix database file permissions',
                     'commands' => [
-                        "chmod 644 {$filePath}",
-                        "chown {$this->currentUser}:{$this->currentUser} {$filePath}"
+                        'chmod ' . self::fileMode() . ' ' . escapeshellarg($filePath),
+                        'chown ' . $this->ownerArg() . ' ' . escapeshellarg($filePath)
                     ],
                     'explanation' => 'Ensures CPM can update database files'
                 ];
@@ -287,8 +288,8 @@ class PermissionManager
                         'priority' => 'high',
                         'action' => 'Fix context file permissions',
                         'commands' => [
-                            "chmod 644 {$filePath}",
-                            "chown {$this->currentUser}:{$this->currentUser} {$filePath}"
+                            'chmod ' . self::fileMode() . ' ' . escapeshellarg($filePath),
+                            'chown ' . $this->ownerArg() . ' ' . escapeshellarg($filePath)
                         ],
                         'explanation' => 'Ensures Claude Code can read context files'
                     ];
@@ -324,7 +325,7 @@ class PermissionManager
                         'priority' => 'medium',
                         'action' => 'Make binary executable',
                         'commands' => [
-                            "chmod +x {$binary}"
+                            'chmod +x ' . escapeshellarg($binary)
                         ],
                         'explanation' => 'Makes CPM binary executable'
                     ];
@@ -362,7 +363,7 @@ class PermissionManager
                     'priority' => 'high',
                     'action' => 'Fix root ownership',
                     'commands' => [
-                        "sudo chown -R {$this->currentUser}:{$this->currentUser} {$cpmPath}"
+                        'sudo chown -R ' . $this->ownerArg() . ' ' . escapeshellarg($cpmPath)
                     ],
                     'explanation' => 'Changes ownership from root to current user'
                 ];
@@ -371,25 +372,27 @@ class PermissionManager
     }
 
     /**
-     * Fix directory permissions
+     * Fix directory permissions: tighten to the installer's mode (no world access)
      */
     private function fixDirectoryPermissions(bool $dryRun): array
     {
         $fixes = [];
         $directories = [
-            $this->config->get('paths.cpm_root') => '755',
-            $this->config->get('paths.database') => '755',
-            $this->config->get('paths.context') => '755',
-            $this->config->get('paths.logs') => '775', // Needs write for daemon
-            $this->config->get('paths.config') => '755'
+            $this->config->get('paths.cpm_root'),
+            $this->config->get('paths.database'),
+            $this->config->get('paths.context'),
+            $this->config->get('paths.logs'),
+            $this->config->get('paths.config')
         ];
+        $permission = self::dirMode();
 
-        foreach ($directories as $dir => $permission) {
-            if (is_dir($dir)) {
+        foreach ($directories as $dir) {
+            // Never chmod through a symlink planted in the project
+            if (is_dir($dir) && !is_link($dir)) {
                 $currentPerms = substr(sprintf('%o', fileperms($dir)), -3);
                 if ($currentPerms !== $permission) {
                     if (!$dryRun) {
-                        chmod($dir, octdec($permission));
+                        chmod($dir, Installer::CPM_DIR_MODE);
                     }
                     $fixes[] = "Set {$dir} permissions to {$permission}";
                 }
@@ -400,22 +403,32 @@ class PermissionManager
     }
 
     /**
-     * Fix file permissions
+     * Fix file permissions: tighten every regular file under .cpm/ to the
+     * installer's mode (no world access)
      */
     private function fixFilePermissions(bool $dryRun): array
     {
         $fixes = [];
-        $filePattern = $this->config->get('paths.cpm_root') . '/**/*.{json,md}';
-        
-        foreach (glob($filePattern, GLOB_BRACE) as $file) {
-            if (is_file($file)) {
-                $currentPerms = substr(sprintf('%o', fileperms($file)), -3);
-                if ($currentPerms !== '644') {
-                    if (!$dryRun) {
-                        chmod($file, 0644);
-                    }
-                    $fixes[] = "Set {$file} permissions to 644";
+        $cpmPath = $this->config->get('paths.cpm_root');
+        if (!is_dir($cpmPath) || is_link($cpmPath)) {
+            return $fixes;
+        }
+        $permission = self::fileMode();
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($cpmPath, \FilesystemIterator::SKIP_DOTS)
+        );
+        foreach ($iterator as $file) {
+            $path = $file->getPathname();
+            if ($file->isLink() || !$file->isFile()) {
+                continue;
+            }
+            $currentPerms = substr(sprintf('%o', fileperms($path)), -3);
+            if ($currentPerms !== $permission) {
+                if (!$dryRun) {
+                    chmod($path, Installer::CPM_FILE_MODE);
                 }
+                $fixes[] = "Set {$path} permissions to {$permission}";
             }
         }
 
@@ -474,14 +487,39 @@ class PermissionManager
         foreach ($directories as $dir) {
             if (!is_dir($dir)) {
                 if (!$dryRun) {
-                    mkdir($dir, 0755, true);
-                    chown($dir, $this->currentUser);
+                    mkdir($dir, Installer::CPM_DIR_MODE, true);
+                    @chmod($dir, Installer::CPM_DIR_MODE);
+                    @chown($dir, $this->currentUser);
                 }
                 $fixes[] = "Created directory: {$dir}";
             }
         }
 
         return $fixes;
+    }
+
+    /**
+     * Installer directory mode as an octal string for messages and commands
+     */
+    private static function dirMode(): string
+    {
+        return sprintf('%o', Installer::CPM_DIR_MODE);
+    }
+
+    /**
+     * Installer file mode as an octal string for messages and commands
+     */
+    private static function fileMode(): string
+    {
+        return sprintf('%o', Installer::CPM_FILE_MODE);
+    }
+
+    /**
+     * Shell-quoted "user:user" argument for suggested chown commands
+     */
+    private function ownerArg(): string
+    {
+        return escapeshellarg($this->currentUser . ':' . $this->currentUser);
     }
 
     /**

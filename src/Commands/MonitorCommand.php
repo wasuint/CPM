@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ClaudeProjectManager\Commands;
 
 use ClaudeProjectManager\SessionManager;
+use ClaudeProjectManager\Services\MonitorPidGuard;
 use ClaudeProjectManager\Console\Commands\ContextDigestCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -375,9 +376,9 @@ Use --interval to specify check frequency (default: 30 seconds).
             return Command::SUCCESS;
         }
 
-        $pid = trim(file_get_contents($pidFile));
+        $pid = MonitorPidGuard::parse((string) file_get_contents($pidFile));
 
-        if (empty($pid) || !is_numeric($pid)) {
+        if ($pid === null) {
             @unlink($pidFile);
             if ($json) {
                 $this->outputJsonError($output, 'monitor.stop', 'Invalid PID in daemon file');
@@ -388,7 +389,7 @@ Use --interval to specify check frequency (default: 30 seconds).
         }
 
         // Check if process is running
-        $running = $this->isProcessRunning((int)$pid);
+        $running = $this->isProcessRunning($pid);
 
         if (!$running) {
             @unlink($pidFile);
@@ -400,12 +401,25 @@ Use --interval to specify check frequency (default: 30 seconds).
             return Command::SUCCESS;
         }
 
+        // Never signal a process that cannot be verified as a CPM monitor: the
+        // PID file may come from a hostile repository (see MonitorPidGuard).
+        if (!MonitorPidGuard::isCpmMonitor($pid, $projectRoot)) {
+            $message = "PID {$pid} is not a verifiable CPM monitor process; refusing to signal it. "
+                . "Stop the monitor manually and remove {$pidFile}";
+            if ($json) {
+                $this->outputJsonError($output, 'monitor.stop', $message);
+            } else {
+                $io->error($message);
+            }
+            return Command::FAILURE;
+        }
+
         // Try to terminate the process gracefully
         if (!function_exists('posix_kill')) {
             // Windows fallback: use taskkill
             $execOutput = [];
             $exitCode = 0;
-            exec("taskkill /PID {$pid} /F 2>&1", $execOutput, $exitCode);
+            exec('taskkill /PID ' . escapeshellarg((string) $pid) . ' /F 2>&1', $execOutput, $exitCode);
             if ($exitCode === 0) {
                 @unlink($pidFile);
                 if ($json) {
@@ -423,13 +437,14 @@ Use --interval to specify check frequency (default: 30 seconds).
             return Command::FAILURE;
         }
 
-        if (posix_kill((int)$pid, SIGTERM)) {
+        if (posix_kill($pid, SIGTERM)) {
             // Wait a bit for graceful shutdown
             sleep(2);
 
-            // Check if it's still running, then force kill if needed
-            if ($this->isProcessRunning((int)$pid)) {
-                posix_kill((int)$pid, SIGKILL);
+            // Check if it's still running (and still the same monitor, in case
+            // the PID was recycled), then force kill if needed
+            if ($this->isProcessRunning($pid) && MonitorPidGuard::isCpmMonitor($pid, $projectRoot)) {
+                posix_kill($pid, SIGKILL);
                 sleep(1);
             }
 
@@ -468,9 +483,9 @@ Use --interval to specify check frequency (default: 30 seconds).
             return Command::SUCCESS;
         }
 
-        $pid = trim(file_get_contents($pidFile));
+        $pid = MonitorPidGuard::parse((string) file_get_contents($pidFile));
 
-        if (empty($pid) || !is_numeric($pid)) {
+        if ($pid === null) {
             if ($json) {
                 $this->outputJsonError($output, 'monitor.status', 'Invalid PID in daemon file');
             } else {
@@ -479,10 +494,10 @@ Use --interval to specify check frequency (default: 30 seconds).
             return Command::FAILURE;
         }
 
-        $running = $this->isProcessRunning((int)$pid);
+        $running = $this->isProcessRunning($pid);
 
         if ($json) {
-            $data = ['running' => $running, 'pid' => (int)$pid];
+            $data = ['running' => $running, 'pid' => $pid];
             if (!$running) {
                 @unlink($pidFile);
                 $data['message'] = 'Daemon PID file existed but process is not running; PID file removed';
@@ -524,8 +539,8 @@ Use --interval to specify check frequency (default: 30 seconds).
             return false;
         }
 
-        $pid = trim(file_get_contents($pidFile));
-        return !empty($pid) && is_numeric($pid) && $this->isProcessRunning((int)$pid);
+        $pid = MonitorPidGuard::parse((string) file_get_contents($pidFile));
+        return $pid !== null && $this->isProcessRunning($pid);
     }
 
     /**
@@ -535,12 +550,15 @@ Use --interval to specify check frequency (default: 30 seconds).
      */
     private function isProcessRunning(int $pid): bool
     {
+        if ($pid <= 1) {
+            return false;
+        }
         if (function_exists('posix_kill')) {
             return posix_kill($pid, 0);
         }
         // Windows fallback
         $output = [];
-        exec("tasklist /FI \"PID eq {$pid}\" /NH 2>NUL", $output);
+        exec('tasklist /FI ' . escapeshellarg("PID eq {$pid}") . ' /NH 2>NUL', $output);
         foreach ($output as $line) {
             if (strpos($line, (string)$pid) !== false) {
                 return true;

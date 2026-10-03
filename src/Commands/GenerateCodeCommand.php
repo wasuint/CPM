@@ -159,6 +159,8 @@ Pattern Learning:
         $io = $this->createStyleIfNeeded($input, $output);
 
         try {
+            $this->assertSafeName((string) $name);
+
             $generationSpecs = [
                 'type' => $type,
                 'name' => $name,
@@ -201,7 +203,13 @@ Pattern Learning:
         $codeTemplate = $this->selectCodeTemplate($specs['type'], $projectPatterns);
         $generatedCode = $this->applyPatterns($codeTemplate, $specs, $projectPatterns);
         
-        $suggestedPath = $specs['output_path'] ?? $this->suggestFilePath($specs, $projectPatterns);
+        $derivedPath = $specs['output_path'] === null;
+        if ($derivedPath) {
+            $suggestedPath = $this->suggestFilePath($specs, $projectPatterns);
+            $this->assertInsideProject($suggestedPath);
+        } else {
+            $suggestedPath = $specs['output_path'];
+        }
         
         $result = [
             'code_generated' => true,
@@ -216,7 +224,7 @@ Pattern Learning:
         ];
 
         if (!$specs['dry_run']) {
-            $writeResult = $this->writeGeneratedCode($generatedCode, $suggestedPath, $specs);
+            $writeResult = $this->writeGeneratedCode($generatedCode, $suggestedPath, $specs, $derivedPath);
             $result['file_written'] = $writeResult['success'];
             if ($writeResult['success']) {
                 $result['actual_path'] = $writeResult['path'];
@@ -353,6 +361,43 @@ Pattern Learning:
         return $substitutions;
     }
 
+    /**
+     * The name becomes part of the output file path, so it must be a single
+     * path segment: no directory separators, no "..", no NUL byte.
+     */
+    private function assertSafeName(string $name): void
+    {
+        if (
+            $name === ''
+            || strpbrk($name, "/\\\0") !== false
+            || str_contains($name, '..')
+        ) {
+            throw new \InvalidArgumentException(
+                "Invalid name '{$name}': path separators and '..' are not allowed"
+            );
+        }
+    }
+
+    /**
+     * Defence in depth: a derived output path must stay under the project root.
+     */
+    private function assertInsideProject(string $path): void
+    {
+        $root = rtrim(str_replace('\\', '/', getcwd() ?: '.'), '/') . '/';
+        $normalized = str_replace('\\', '/', $path);
+        $segments = [];
+        foreach (explode('/', $normalized) as $segment) {
+            if ($segment === '..') {
+                array_pop($segments);
+            } elseif ($segment !== '.') {
+                $segments[] = $segment;
+            }
+        }
+        if (!str_starts_with(implode('/', $segments), $root)) {
+            throw new \InvalidArgumentException("Refusing to write outside the project root: {$path}");
+        }
+    }
+
     private function suggestFilePath(array $specs, array $patterns): string
     {
         $basePath = getcwd() . '/src/';
@@ -386,14 +431,31 @@ Pattern Learning:
         return min(0.99, $baseConfidence + $patternBonus + $specificityBonus);
     }
 
-    private function writeGeneratedCode(string $code, string $path, array $specs): array
+    private function writeGeneratedCode(string $code, string $path, array $specs, bool $confineToProject = false): array
     {
+        // The string check in assertInsideProject() cannot see symlinks: a
+        // committed `src -> /elsewhere` would still escape. Resolve the
+        // nearest existing ancestor before mkdir, and the directory after it.
+        $directory = dirname($path);
+        if ($confineToProject) {
+            $existing = $directory;
+            while (!file_exists($existing) && !is_link($existing) && dirname($existing) !== $existing) {
+                $existing = dirname($existing);
+            }
+            $this->assertResolvesInsideProject($existing, $path);
+        }
+
         try {
-            $directory = dirname($path);
             if (!is_dir($directory)) {
                 mkdir($directory, 0755, true);
             }
-            
+            if ($confineToProject) {
+                $this->assertResolvesInsideProject($directory, $path);
+                if (is_link($path)) {
+                    throw new \InvalidArgumentException("Refusing to write through a symlink: {$path}");
+                }
+            }
+
             if (file_exists($path) && !$specs['dry_run']) {
                 // Create backup
                 $backupPath = $path . '.backup.' . time();
@@ -408,11 +470,27 @@ Pattern Learning:
                 'size' => strlen($code)
             ];
             
+        } catch (\InvalidArgumentException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return [
                 'success' => false,
                 'error' => $e->getMessage()
             ];
+        }
+    }
+
+    private function assertResolvesInsideProject(string $existingPath, string $path): void
+    {
+        $realRoot = realpath(getcwd() ?: '.');
+        $realPath = realpath($existingPath);
+        if ($realRoot === false || $realPath === false) {
+            throw new \InvalidArgumentException("Refusing to write outside the project root: {$path}");
+        }
+        $realRoot = rtrim(str_replace('\\', '/', $realRoot), '/') . '/';
+        $realPath = rtrim(str_replace('\\', '/', $realPath), '/') . '/';
+        if (!str_starts_with($realPath, $realRoot)) {
+            throw new \InvalidArgumentException("Refusing to write outside the project root: {$path}");
         }
     }
 

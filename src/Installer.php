@@ -11,6 +11,12 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class Installer
 {
+    /** Mode for .cpm/ directories: owner and group only, no world access. */
+    public const CPM_DIR_MODE = 0770;
+
+    /** Mode for files under .cpm/: owner and group only, no world access. */
+    public const CPM_FILE_MODE = 0660;
+
     private Filesystem $filesystem;
 
     public function __construct()
@@ -28,11 +34,11 @@ class Installer
         $dstSchemas = $root . '/.cpm/schemas';
         $srcTemplates = self::toolPath('templates');
 
-        @mkdir($root . '/.cpm', 0770, true);
-        @mkdir($dstSchemas, 0770, true);
-        @mkdir($root . '/.cpm/logs', 0770, true);
-        @mkdir($root . '/.cpm/backups', 0770, true);
-        @mkdir($root . '/.cpm/config', 0770, true);
+        @mkdir($root . '/.cpm', self::CPM_DIR_MODE, true);
+        @mkdir($dstSchemas, self::CPM_DIR_MODE, true);
+        @mkdir($root . '/.cpm/logs', self::CPM_DIR_MODE, true);
+        @mkdir($root . '/.cpm/backups', self::CPM_DIR_MODE, true);
+        @mkdir($root . '/.cpm/config', self::CPM_DIR_MODE, true);
 
         // Publish schemas (do not overwrite)
         if (is_dir($srcSchemas)) {
@@ -60,7 +66,7 @@ class Installer
                 
                 if (is_file($srcPath) && !file_exists($dstFullPath)) {
                     @copy($srcPath, $dstFullPath);
-                    @chmod($dstFullPath, 0660);
+                    @chmod($dstFullPath, self::CPM_FILE_MODE);
                 }
             }
         }
@@ -70,7 +76,7 @@ class Installer
         if (!file_exists($envFile)) {
             $seed = "TELEGRAM_ENABLED=false\nNOTIFICATION_TIMEZONE=UTC\n";
             @file_put_contents($envFile, $seed);
-            @chmod($envFile, 0660);
+            @chmod($envFile, self::CPM_FILE_MODE);
         }
     }
 
