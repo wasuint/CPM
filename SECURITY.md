@@ -71,12 +71,38 @@ covered by the `.cpm/` ignore rule above, and by the `.env` rules in the project
 `.gitignore`. CPM does not read or transmit any other credential, and it makes no
 network requests unless Telegram notifications are explicitly enabled.
 
+CPM ignores a `.cpm/.env` (or legacy `.claude-project/.env`) that is tracked by git and
+prints a warning instead of loading it. A committed file comes from the repository, not
+from the user, so a hostile repository cannot use it to enable Telegram with a foreign
+bot token. CPM also ignores the file when it, or any directory on the way to it, is a
+symlink, or when it resolves to a location outside the project root. An untracked,
+local `.cpm/.env` keeps working as before.
+
+The tracked-file check needs a git work tree. A project that arrives as a zip file or a
+tarball has no git metadata, so CPM cannot tell a planted `.cpm/.env` from a local one.
+Before running CPM on such an untrusted project, inspect `.cpm/.env` (and
+`.claude-project/.env`) and delete the file if you did not create it.
+
 ### File permissions
 
-CPM creates its directories with restrictive permissions and provides
-`cpm tools:fix-perms` to repair them. Running CPM as root leaves root-owned files in a
-user-owned repository, which breaks later runs; run it as the user who owns the
-project.
+CPM creates `.cpm/` with restrictive permissions: directories `0770` and files `0660`,
+so the files are not readable by other users. `cpm tools:fix-perms` repairs the
+permissions by tightening them to the same modes; it does not loosen them, and the
+commands it suggests use the same modes with every path shell-quoted. Running CPM as
+root leaves root-owned files in a user-owned repository, which breaks later runs; run
+it as the user who owns the project.
+
+### Monitor daemon
+
+`cpm monitor --stop` reads the PID from `.cpm/logs/monitor.pid`, a file that a cloned
+repository could contain. CPM only accepts a plain positive PID greater than 1, and it
+only signals that process after it has verified that the process is the monitor daemon
+of this project: its arguments must be a CPM entry point (`cpm`, `claude-project` or
+`cpm.php`) followed directly by `monitor --continuous`, and its working directory must
+be the project root. On Linux CPM reads `/proc/<pid>/cmdline` and `/proc/<pid>/cwd`; on
+macOS and BSD it falls back to `ps` and, when installed, `lsof`. When the arguments
+cannot be read, or the working directory is readable and differs, CPM refuses to signal
+the process and asks the user to stop the monitor by hand.
 
 ### Untrusted repositories
 

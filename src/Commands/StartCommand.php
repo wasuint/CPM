@@ -856,22 +856,22 @@ MD;
             $pidFile = getcwd() . '/.cpm/logs/monitor.pid';
             if (!file_exists($pidFile)) return false;
             
-            $pid = trim(file_get_contents($pidFile));
-            if (empty($pid)) {
+            $pid = \ClaudeProjectManager\Services\MonitorPidGuard::parse((string) file_get_contents($pidFile));
+            if ($pid === null) {
                 return false;
             }
             // Windows fallback when POSIX functions are unavailable
             if (!function_exists('posix_getsid')) {
                 $output = [];
-                exec("tasklist /FI \"PID eq " . (int)$pid . "\" /NH 2>NUL", $output);
+                exec('tasklist /FI ' . escapeshellarg("PID eq {$pid}") . ' /NH 2>NUL', $output);
                 foreach ($output as $line) {
-                    if (strpos($line, (string)(int)$pid) !== false) {
+                    if (strpos($line, (string)$pid) !== false) {
                         return true;
                     }
                 }
                 return false;
             }
-            return posix_getsid((int)$pid) !== false;
+            return posix_getsid($pid) !== false;
         } catch (\Exception $e) {
             return false;
         }

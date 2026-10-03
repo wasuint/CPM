@@ -175,11 +175,13 @@ class DiagnosticsCommand extends Command
         $pidFile = $this->projectRoot . '/.cpm/logs/monitor.pid';
         
         if (file_exists($pidFile)) {
-            $pid = trim(file_get_contents($pidFile));
-            
-            if ($pid && is_numeric($pid)) {
-                // Check if process is still running
-                $running = posix_kill((int)$pid, 0);
+            $pid = \ClaudeProjectManager\Services\MonitorPidGuard::parse((string) file_get_contents($pidFile));
+
+            if ($pid === null) {
+                $io->warning("Invalid PID in monitor PID file: {$pidFile}");
+            } else {
+                // Check if process is still running (signal 0 only probes)
+                $running = function_exists('posix_kill') && posix_kill($pid, 0);
                 
                 if (!$running) {
                     $io->warning("Stale monitor PID file found: {$pid} (process not running)");

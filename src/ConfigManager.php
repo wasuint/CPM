@@ -22,11 +22,82 @@ class ConfigManager
         
         $envPath = $this->getCpmPath();
         if (file_exists($envPath . '/.env')) {
-            $this->dotenv = Dotenv::createImmutable($envPath);
-            $this->dotenv->load();
+            // A .cpm/.env shipped with the analysed repository is attacker
+            // controlled (e.g. Telegram enabled with a foreign bot token), so
+            // only an untracked, local file inside the project is honoured.
+            $refusal = $this->untrustedEnvReason($envPath . '/.env');
+            if ($refusal !== null) {
+                error_log(
+                    'CPM warning: ignoring ' . $envPath . '/.env because ' . $refusal . '. '
+                    . 'Keep the CPM .env local, untracked and a regular file.'
+                );
+            } else {
+                $this->dotenv = Dotenv::createImmutable($envPath);
+                $this->dotenv->load();
+            }
         }
-        
+
         $this->loadConfiguration();
+    }
+
+    /**
+     * Returns why the env file must not be loaded, or null when it is a
+     * regular, untracked file inside the real project root.
+     */
+    private function untrustedEnvReason(string $envFile): ?string
+    {
+        $realRoot = realpath($this->projectRoot);
+        $realEnv = realpath($envFile);
+        if ($realRoot === false || $realEnv === false) {
+            return 'its location cannot be resolved';
+        }
+
+        // No component between the project root and the file may be a symlink
+        // (a committed `.cpm -> evil` would hide the tracked evil/.env).
+        $relative = substr($envFile, strlen($this->projectRoot) + 1);
+        $path = $this->projectRoot;
+        foreach (explode('/', $relative) as $segment) {
+            $path .= '/' . $segment;
+            if (is_link($path)) {
+                return 'it is reached through a symlink';
+            }
+        }
+
+        $realRoot = rtrim(str_replace('\\', '/', $realRoot), '/');
+        $realEnv = str_replace('\\', '/', $realEnv);
+        if (!str_starts_with($realEnv, $realRoot . '/')) {
+            return 'it is outside the project root';
+        }
+
+        if ($this->isTrackedByGit($realRoot, substr($realEnv, strlen($realRoot) + 1))) {
+            return 'it is tracked by git';
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether $relativePath (relative to $root) is tracked by git. Needs a git
+     * work tree: when git is unavailable or $root is not a repository the
+     * file counts as untracked.
+     */
+    private function isTrackedByGit(string $root, string $relativePath): bool
+    {
+        if (!function_exists('exec')) {
+            return false;
+        }
+        $output = [];
+        $exitCode = 1;
+        $nullDevice = PHP_OS_FAMILY === 'Windows' ? 'NUL' : '/dev/null';
+        @exec(
+            'git -C ' . escapeshellarg($root)
+            . ' ls-files --error-unmatch -- ' . escapeshellarg($relativePath)
+            . ' 2>' . $nullDevice,
+            $output,
+            $exitCode
+        );
+
+        return $exitCode === 0;
     }
 
     /**

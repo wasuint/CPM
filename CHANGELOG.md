@@ -15,6 +15,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The package is not on Packagist. The installation instructions add the GitHub
   repository as a Composer `vcs` repository.
 
+### Fixed
+- Implicitly nullable constructor parameters in `StatusCommand` and `SuggestCommand` are
+  declared explicitly nullable. On PHP 8.4 and later their deprecation notices corrupted
+  `--json` output when `display_errors` writes to STDOUT.
+
+### Security
+- `cpm monitor --stop` only accepts a plain PID greater than 1 and only signals the
+  verified monitor daemon of the current project (exact `cpm monitor --continuous`
+  arguments and working directory, via `/proc`, or `ps`/`lsof` on macOS and BSD); a
+  planted `monitor.pid` of `-1` can no longer signal every process of the user. The
+  same PID validation applies to the status checks.
+- A `.cpm/.env` or `.claude-project/.env` that is tracked by git, reached through a
+  symlink, or located outside the project is ignored with a warning, so a hostile
+  repository cannot enable Telegram with its own bot token.
+- `tools:fix-perms` tightens `.cpm/` to the installer's modes (`0770`/`0660`) instead of
+  loosening it to `0755`/`0644`.
+- `cpm template export` validates `--language` against the supported languages and
+  writes to an unpredictable file created with `tempnam()`.
+- Shell commands suggested by the permission checks quote every path.
+- `cpm generate-code` rejects names that contain path separators or `..`, and checks
+  that the derived output path, with symlinks resolved, stays inside the project.
+
 ## [1.3.2] - 2026-10-03
 
 ### Changed

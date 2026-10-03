@@ -30,8 +30,8 @@ class SuggestCommand extends Command
 
     public function __construct(
         DatabaseManager $database,
-        AiPriorityScorer $priorityScorer = null,
-        AdaptiveTrackingManager $trackingManager = null
+        ?AiPriorityScorer $priorityScorer = null,
+        ?AdaptiveTrackingManager $trackingManager = null
     ) {
         parent::__construct();
         $this->database = $database;
