@@ -140,7 +140,7 @@ class TaskManager
      * @param string $status Optional status update
      * @return void
      */
-    public function updateTaskProgress(string $taskId, float $progress, string $status = null): void
+    public function updateTaskProgress(string $taskId, float $progress, ?string $status = null): void
     {
         try {
             $this->database->update('tasks', "definitions.{$taskId}.progress", $progress);

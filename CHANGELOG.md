@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `composer.lock` now resolves on PHP 8.1: `config.platform.php` is pinned to 8.1.0, so
+  dependencies such as `symfony/string` are no longer locked at versions that need 8.2.
+- Five parameters that were implicitly nullable are now explicitly nullable, removing
+  the PHP 8.4 deprecation notices.
+- `LoggerTest` no longer deletes a log file that the logger never created.
+
 ## [1.3.1] - 2026-10-03
 
 First public release, published as `wasuint/CPM`. This version includes the

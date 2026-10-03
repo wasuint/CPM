@@ -361,7 +361,7 @@ class ActivityTracker
     /**
      * Recursively scan directory for file modification times
      */
-    private function scanDirectoryForTimes(string $dir, array &$times = null): void
+    private function scanDirectoryForTimes(string $dir, ?array &$times = null): void
     {
         if ($times === null) {
             $times = &$this->lastFileTimes;

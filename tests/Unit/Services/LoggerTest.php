@@ -42,8 +42,10 @@ class LoggerTest extends TestCase
 
         $this->assertDirectoryExists(dirname($logPath));
 
-        // Cleanup
-        unlink($logPath);
+        // Cleanup: the logger creates the directory, but the file only on first write
+        if (is_file($logPath)) {
+            unlink($logPath);
+        }
         rmdir(dirname($logPath));
     }
 
