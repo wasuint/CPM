@@ -314,7 +314,7 @@ class SchemaValidator
         $output .= "  Example: cpm progress mark-completed <file> <function> --force\n\n";
         $output .= "📚 Need Help?\n";
         $output .= "  • Run: cpm progress validate --verbose for detailed diagnostics\n";
-        $output .= "  • See: CPM_TROUBLESHOOTING.md for common issues\n";
+        $output .= "  • See: docs/troubleshooting.md for common issues\n";
         $output .= "  • Report bug: https://github.com/wasuint/CPM/issues\n";
 
         return $output;

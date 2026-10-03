@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Discussions, Projects and the Wiki are switched off, and the Discussions link is
+  removed from the issue template configuration (D-022).
+- `SECURITY.md` names GitHub private vulnerability reporting as the preferred channel,
+  with `hello@wasu.eu` as the fallback.
+- The package is not on Packagist. The installation instructions add the GitHub
+  repository as a Composer `vcs` repository.
+
 ## [1.3.2] - 2026-10-03
 
 ### Changed
