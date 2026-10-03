@@ -198,7 +198,7 @@ migrating simply makes the layout current.
 ## Verifying the installation
 
 ```bash
-cpm --version                  # Claude Project Manager 1.3.1
+cpm --version                  # Claude Project Manager 1.3.2
 cpm list                       # all registered commands
 cpm docs                       # long-form reference
 

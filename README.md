@@ -4,7 +4,7 @@ A PHP command-line tool that gives AI coding assistants persistent, structured c
 
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-777bb4.svg)](https://www.php.net/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.3.1-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.2-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -68,7 +68,7 @@ Verify:
 
 ```bash
 cpm --version
-# Claude Project Manager 1.3.1
+# Claude Project Manager 1.3.2
 ```
 
 ### Per-project installation with Composer

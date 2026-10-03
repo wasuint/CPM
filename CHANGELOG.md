@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-10-03
+
+### Changed
+- CI uses `actions/checkout` v7, replacing v4, which ran on the deprecated Node 20.
+
 ### Fixed
 - `composer.lock` now resolves on PHP 8.1: `config.platform.php` is pinned to 8.1.0, so
   dependencies such as `symfony/string` are no longer locked at versions that need 8.2.
@@ -186,5 +191,6 @@ internal 1.3.1 build of 2026-07-13.
   daemon, context generation, pattern-aware code generation, quality metrics and impact
   analysis, and analysers for PHP, Python, JavaScript and TypeScript.
 
-[Unreleased]: https://github.com/wasuint/CPM/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/wasuint/CPM/compare/v1.3.2...HEAD
+[1.3.2]: https://github.com/wasuint/CPM/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/wasuint/CPM/releases/tag/v1.3.1
