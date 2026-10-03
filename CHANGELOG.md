@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-10-03
+
 ### Changed
 - Discussions, Projects and the Wiki are switched off, and the Discussions link is
   removed from the issue template configuration (D-022).
@@ -221,6 +223,7 @@ internal 1.3.1 build of 2026-07-13.
   daemon, context generation, pattern-aware code generation, quality metrics and impact
   analysis, and analysers for PHP, Python, JavaScript and TypeScript.
 
-[Unreleased]: https://github.com/wasuint/CPM/compare/v1.3.2...HEAD
+[Unreleased]: https://github.com/wasuint/CPM/compare/v1.3.3...HEAD
+[1.3.3]: https://github.com/wasuint/CPM/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/wasuint/CPM/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/wasuint/CPM/releases/tag/v1.3.1

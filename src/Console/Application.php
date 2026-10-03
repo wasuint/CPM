@@ -46,7 +46,7 @@ use Symfony\Component\Console\CommandLoader\FactoryCommandLoader;
 class Application extends SymfonyApplication
 {
     private const NAME = 'Claude Project Manager';
-    public const VERSION = '1.3.2';
+    public const VERSION = '1.3.3';
 
     public function __construct()
     {
