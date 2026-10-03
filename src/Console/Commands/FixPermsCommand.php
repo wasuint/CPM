@@ -22,7 +22,7 @@ class FixPermsCommand extends Command
     private PermissionManager $permissionManager;
     private ConfigManager $config;
 
-    public function __construct(ConfigManager $config = null)
+    public function __construct(?ConfigManager $config = null)
     {
         parent::__construct();
         $this->config = $config ?? new ConfigManager(getcwd());

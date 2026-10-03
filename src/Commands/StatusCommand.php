@@ -338,7 +338,7 @@ Use --top N with --ai-priority to show top N priority functions.
         }
     }
 
-    private function displayDetailedProgress(SymfonyStyle $io, string $fileFilter = null): void
+    private function displayDetailedProgress(SymfonyStyle $io, ?string $fileFilter = null): void
     {
         try {
             $progress = $this->database->read('progress');

@@ -32,7 +32,7 @@ class SessionManager
      * @param DatabaseManager $database Database manager for session persistence
      * @param ActivityTracker $activityTracker Activity tracking for automatic progress updates
      */
-    public function __construct(DatabaseManager $database, ActivityTracker $activityTracker = null)
+    public function __construct(DatabaseManager $database, ?ActivityTracker $activityTracker = null)
     {
         $this->database = $database;
         $this->config = new ConfigManager(getcwd());
