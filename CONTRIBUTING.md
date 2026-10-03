@@ -90,7 +90,7 @@ vendor/bin/phpunit --filter IssueCommandTest
 ```
 
 The suite must pass before a pull request is merged. The CI workflow runs it against
-PHP 8.1, 8.2, 8.3 and 8.4, plus `composer validate --strict` and a `php -l` lint pass
+PHP 8.1, 8.2, 8.3, 8.4 and 8.5, plus `composer validate --strict` and a `php -l` lint pass
 over `src/` and `bin/`.
 
 ## Branches and pull requests

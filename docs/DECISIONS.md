@@ -475,11 +475,11 @@ A checklist for the maintainer preparing the first public release.
       guards both.
 - [x] `composer.json` defines `scripts.test`, `scripts.test:unit`, `scripts.test:integration`
       and `scripts.lint`, so `composer test` works as `CONTRIBUTING.md` describes.
-- [ ] Confirm `symfony/console ^5.0|^6.0` behaves on PHP 8.4. The CI matrix covers it;
-      widening the constraint to `^7.0` may be worthwhile once that is verified.
+- [x] Confirm `symfony/console ^5.0|^6.0` behaves on PHP 8.4. CI is green on 8.4 and 8.5
+      with Symfony 6.4; widening the constraint to `^7.0` remains optional.
 - [x] `config/rules.json` was reviewed at publication; the author-specific `download/**/*`
       exclusion was removed.
-- [ ] Run the test suite on every PHP version in the CI matrix.
+- [x] Run the test suite on every PHP version in the CI matrix (8.1 to 8.5, on every pull request).
 
 ### Final check
 
