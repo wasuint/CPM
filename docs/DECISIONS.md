@@ -30,6 +30,7 @@ Each entry states the decision, the reasoning, and what would justify revisiting
 - [D-019: Clean the shipped rule and environment templates](#d-019-clean-the-shipped-rule-and-environment-templates)
 - [D-020: No side effects before a command writes](#d-020-no-side-effects-before-a-command-writes)
 - [D-021: Remove the unreachable `refactoring` command](#d-021-remove-the-unreachable-refactoring-command)
+- [D-022: Code, issues and pull requests only; no Packagist](#d-022-code-issues-and-pull-requests-only-no-packagist)
 - [Known limitations](#known-limitations)
 - [Before you publish](#before-you-publish)
 
@@ -387,6 +388,25 @@ live code: `ProgressTracker` instantiates it and calls
 `recordRefactoringOperations()`, and it still populates `refactoring_history.json`.
 Only the unreachable entry point was deleted, not the feature behind it.
 
+## D-022: Code, issues and pull requests only; no Packagist
+
+**Decision.** The repository offers the code, the issue tracker and pull requests.
+Discussions, Projects and the Wiki are switched off, and the Discussions link is removed
+from the issue template configuration. The package is not registered on Packagist.
+
+**Reasoning.** The code is published to be taken, used and improved. It is not
+published to become a community forum. Discussions invite open-ended conversation that
+someone has to read and answer; issues stay open because the issue forms ask for a
+concrete bug report or feature request, and pull requests arrive with the work already
+done. Security reports go through GitHub private vulnerability reporting or
+`hello@wasu.eu`, as `SECURITY.md` describes.
+
+Packagist registration is not needed for Composer installation: a `vcs` repository
+entry pointing at GitHub installs the same package, and the documentation shows it.
+
+**Revisit if.** The maintainers want a place for questions, or want the package to be
+discoverable through Packagist search.
+
 ## Known limitations
 
 Things that are true of this release and that a contributor should know before being
@@ -415,8 +435,8 @@ A checklist for the maintainer preparing the first public release.
       `.github/ISSUE_TEMPLATE/config.yml`.
       Verify with `grep -rn 'your-org' .`
 - [x] Set the Composer package name in `composer.json`: it is `wasuint/cpm` (D-004).
-- [ ] Register `wasuint/cpm` on Packagist, so that `composer require --dev wasuint/cpm`
-      works as the README describes.
+- [x] Packagist: not registered, by decision (D-022). The README and
+      `docs/installation.md` add the GitHub repository as a Composer `vcs` repository.
 - [x] The copyright holder in `LICENSE` is `WASU International Ltd`, and the `authors`
       block in `composer.json` names the same company with `hello@wasu.eu`.
 - [x] `composer.json` declares `"license": "MIT"`, replacing the original
@@ -428,21 +448,19 @@ A checklist for the maintainer preparing the first public release.
 ### Contacts
 
 - [x] `CODE_OF_CONDUCT.md` and `SECURITY.md` both direct reports to `hello@wasu.eu`.
-- [ ] Consider enabling GitHub private vulnerability reporting once the repository
-      exists, and point `SECURITY.md` at that as the preferred channel, keeping
-      `hello@wasu.eu` as the fallback.
+- [x] `SECURITY.md` points at GitHub private vulnerability reporting as the preferred
+      channel, with `hello@wasu.eu` as the fallback.
 
 ### Repository settings
 
-- [ ] Enable GitHub Actions and confirm the CI workflow runs green on PHP 8.1 through
+- [x] Enable GitHub Actions and confirm the CI workflow runs green on PHP 8.1 through
       8.4.
-- [ ] Enable Dependabot alerts and security updates.
-- [ ] Enable private vulnerability reporting under Settings, Security.
-- [ ] Enable Discussions, or remove the Discussions link from
-      `.github/ISSUE_TEMPLATE/config.yml`.
-- [ ] Protect `main`: require the CI check to pass, and require a pull request for
-      changes.
-- [ ] Set the repository description and topics (`php`, `cli`, `ai`, `developer-tools`,
+- [x] Enable Dependabot alerts and security updates.
+- [x] Enable private vulnerability reporting under Settings, Security.
+- [x] Switch off Discussions, Projects and the Wiki, and remove the Discussions link
+      from `.github/ISSUE_TEMPLATE/config.yml` (D-022).
+- [x] Protect `main`: require a pull request for changes.
+- [x] Set the repository description and topics (`php`, `cli`, `ai`, `developer-tools`,
       `project-management`).
 
 ### Code

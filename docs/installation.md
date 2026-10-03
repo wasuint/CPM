@@ -80,9 +80,13 @@ binary lives.
 
 ```bash
 cd ~/projects/my-app
+composer config repositories.cpm vcs https://github.com/wasuint/CPM
 composer require --dev wasuint/cpm
 ./vendor/bin/cpm --version
 ```
+
+CPM is not published on Packagist, so the `repositories` entry is required: it tells
+Composer to fetch the package from the GitHub repository.
 
 Composer installs both entry points into `vendor/bin/`. Add a shell alias if typing the
 path becomes tedious:

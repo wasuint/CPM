@@ -73,7 +73,10 @@ cpm --version
 
 ### Per-project installation with Composer
 
+CPM is not published on Packagist. Point Composer at the GitHub repository instead:
+
 ```bash
+composer config repositories.cpm vcs https://github.com/wasuint/CPM
 composer require --dev wasuint/cpm
 ./vendor/bin/cpm --version
 ```

@@ -13,10 +13,11 @@ reporting a problem against an older line.
 
 ## Reporting a vulnerability
 
-**Do not open a public GitHub issue for a security problem.**
+**Do not open a public GitHub issue or pull request for a security problem.**
 
-Report it privately to **hello@wasu.eu**, or through GitHub's private
-vulnerability reporting on the repository's Security tab.
+Report it privately through GitHub's private vulnerability reporting: the
+"Report a vulnerability" button on the repository's Security tab. If you cannot use
+GitHub, email **hello@wasu.eu** instead.
 
 Please include:
 
